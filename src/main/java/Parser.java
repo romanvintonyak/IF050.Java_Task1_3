@@ -4,19 +4,19 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
+import java.util.Queue;
 
-/**
- * Created by roman on 15.10.14.
- */
 public class Parser implements Runnable {
 
-    private List<Article> articles;
+    private Queue<Article> articles;
+    public static boolean isDone = false;
 
-    public Parser(List<Article> articles) {
+    public Parser(Queue<Article> articles) {
         this.articles = articles;
+    }
+
+    private void done() {
+        this.isDone = true;
     }
 
     @Override
@@ -28,22 +28,24 @@ public class Parser implements Runnable {
 
             for (Element link : links) {
                 synchronized (articles) {
-
-                    //добавляємо новий елемент в список
-                    System.out.println("parging...");
+                    while (articles.size() >= 1) {
+                        try {
+                            articles.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    System.out.println("parsing...");
                     articles.add(new Article(link.text(), link.attr("href")));
                     try {
-                        //імітуємо паузу і перемикаємося на Reader
-                        Thread.sleep(500);
-                        articles.notify();
-                        articles.wait();
-
+                        Thread.sleep(1000); //low-speed internet imitation
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-
+                    articles.notify();
                 }
             }
+            done();
         } catch (IOException e) {
             e.printStackTrace();
         }

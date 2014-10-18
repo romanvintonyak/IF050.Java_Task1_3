@@ -1,6 +1,3 @@
-/**
- * Created by roman on 15.10.14.
- */
 public class Article {
 
     private String title;

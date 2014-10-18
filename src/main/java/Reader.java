@@ -1,48 +1,29 @@
-import java.util.List;
+import java.util.Queue;
 
-/**
- * Created by roman on 15.10.14.
- */
 public class Reader implements Runnable {
-    private List<Article> articles;
+    private Queue<Article> articles;
 
-    int countOfRecords = 10; //кількість записів на habrahabr
-
-    public Reader(List<Article> articles) {
+    public Reader(Queue<Article> articles) {
         this.articles = articles;
     }
 
     @Override
     public void run() {
-        try {
-            Thread.sleep(1000); //даємо можливість Parser'у відпрацювати першому
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        int index = 0;
 
-        while (index < countOfRecords) {
+        while (!Parser.isDone) {
             synchronized (articles) {
-                //читаємо елемент з списку і виводимо його
-                System.out.println("reading...");
-                System.out.println(articles.get(index));
-
-                index++;
-
-                try {
-                    //імітуємо паузу і перемикаємося на Parser
-                    Thread.sleep(500);
-                    articles.notify();
-                    if(index != countOfRecords){
+                while (articles.size() == 0) {
+                    try {
                         articles.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
+                System.out.println("reading...");
+                System.out.println(articles.poll());
+                articles.notify();
 
             }
-
-
         }
     }
 }
