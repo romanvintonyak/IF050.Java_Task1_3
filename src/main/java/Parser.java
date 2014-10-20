@@ -9,19 +9,15 @@ import java.util.Queue;
 public class Parser implements Runnable {
 
     private Queue<Article> articles;
-    public static boolean isDone = false;
 
     public Parser(Queue<Article> articles) {
         this.articles = articles;
     }
 
-    private void done() {
-        this.isDone = true;
-    }
+    public static volatile boolean isDone;
 
     @Override
     public void run() {
-
         try {
             Document doc = Jsoup.connect("http://habrahabr.ru/").get();
             Elements links = doc.select("a.post_title");
@@ -49,5 +45,9 @@ public class Parser implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void done() {
+        this.isDone = true;
     }
 }

@@ -1,6 +1,7 @@
 import java.util.Queue;
 
 public class Reader implements Runnable {
+
     private Queue<Article> articles;
 
     public Reader(Queue<Article> articles) {
@@ -9,7 +10,6 @@ public class Reader implements Runnable {
 
     @Override
     public void run() {
-
         while (!Parser.isDone) {
             synchronized (articles) {
                 while (articles.size() == 0) {
@@ -22,7 +22,6 @@ public class Reader implements Runnable {
                 System.out.println("reading...");
                 System.out.println(articles.poll());
                 articles.notify();
-
             }
         }
     }
